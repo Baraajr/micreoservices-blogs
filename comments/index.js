@@ -1,30 +1,46 @@
 const express = require('express');
 const { randomBytes } = require('crypto');
+const cors = require('cors');
+const axios = require('axios');
 
 const app = express();
+app.use(express.json());
+app.use(cors());
 
-app.use(express.json()); // middleware to parse JSON bodies
-
-const commentsByPostId = {}; // store comments in memory
+const commentsByPostId = {};
 
 app.get('/posts/:id/comments', (req, res) => {
-  res.send(commentsByPostId[req.params.id] || []); // return comments for the post or an empty array
+  res.send(commentsByPostId[req.params.id] || []);
 });
 
-app.post('/posts/:id/comments', (req, res) => {
-  const commentId = randomBytes(4).toString('hex'); // generate a random ID
-
+app.post('/posts/:id/comments', async (req, res) => {
+  const commentId = randomBytes(4).toString('hex');
   const { content } = req.body;
 
-  const comments = commentsByPostId[req.params.id] || []; // get existing comments or initialize an empty array
+  const comments = commentsByPostId[req.params.id] || [];
 
-  comments.push({ id: commentId, content }); // add the new comment
+  comments.push({ id: commentId, content });
 
-  commentsByPostId[req.params.id] = comments; // store the updated comments array
+  commentsByPostId[req.params.id] = comments;
 
-  res.status(201).send(commentsByPostId[req.params.id]);
+  await axios.post('http://localhost:4005/events', {
+    type: 'CommentCreated',
+    data: {
+      id: commentId,
+      content,
+      postId: req.params.id,
+    },
+  });
+
+  res.status(201).send(comments);
+});
+
+app.post('/events', (req, res) => {
+  console.log('Event Received', req.body.type);
+
+  res.send({});
 });
 
 app.listen(4001, () => {
-  console.log('Server is running on port 4001');
+  console.log('Listening on 4001');
 });
