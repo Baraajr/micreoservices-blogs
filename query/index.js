@@ -49,7 +49,7 @@ app.post('/events', (req, res) => {
 app.listen(4002, async () => {
   console.log('Listening on 4002');
   // whenever the query service starts, it should fetch all events from the event bus
-  const res = await axios.get('http://localhost:4005/events');
+  const res = await axios.get('http://event-bus-srv:4005/events');
   for (let event of res.data) {
     console.log('Processing event:', event.type);
     handleEvents(event.type, event.data);

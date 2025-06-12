@@ -25,7 +25,7 @@ app.post('/posts/:id/comments', async (req, res) => {
   commentsByPostId[req.params.id] = comments;
 
   // send event to event bus
-  await axios.post('http://localhost:4005/events', {
+  await axios.post('http://event-bus-srv:4005/events', {
     type: 'CommentCreated',
     data: {
       id: commentId,
@@ -57,7 +57,7 @@ app.post('/events', (req, res) => {
 
       // send event to event bus
       axios
-        .post('http://localhost:4005/events', {
+        .post('http://event-bus-srv:4005/events', {
           type: 'CommentUpdated',
           data: {
             id,

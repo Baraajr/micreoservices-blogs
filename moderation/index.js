@@ -19,7 +19,7 @@ app.post('/events', (req, res) => {
     console.log('Data to be sent:', dataToSend);
     // send event to event bus
     axios
-      .post('http://localhost:4005/events', {
+      .post('http://event-bus-srv:4005/events', {
         type: 'CommentModerated',
         data: dataToSend,
       })
