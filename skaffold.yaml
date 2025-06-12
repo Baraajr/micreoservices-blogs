@@ -1,0 +1,59 @@
+apiVersion: skaffold/v4beta3
+kind: Config
+manifests: # telling scaffold where to find the Kubernetes config files (yaml files)
+  rawYaml:
+    - ./infra/k8s/*
+build:
+  local:
+    push: false # this is to avoid pushing the image to a docker hub if we make changes to image
+    useDockerCLI: true # <--- This makes Skaffold respect your Docker CLI context
+    useBuildkit: false # Optional: disable BuildKit for easier debugging
+  artifacts:
+    - image: baraajr11/client
+      context: client # context is the folder where the Dockerfile is located
+      docker: # if something chaned but outside the src folder it will rebuild the image
+        dockerfile: Dockerfile
+      sync: # this is to sync the files from the local machine to the container (hot reloading) like a volume mount in docker
+        manual:
+          - src: 'src/**/*.js' # files to sync are inside the src folder if file changed it will be copied to the pod
+            dest: .
+    - image: baraajr11/comments
+      context: comments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js' # js files in the comments folder
+            dest: .
+    - image: baraajr11/event-bus
+      context: event-bus
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js' # js files in the event-bus folder
+            dest: .
+    - image: baraajr11/moderation
+      context: moderation
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js' # js files in the moderation folder
+            dest: .
+    - image: baraajr11/posts
+      context: posts
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js' # js files in the posts folder
+            dest: .
+    - image: baraajr11/query
+      context: query
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '*.js' # js files in the query folder
+            dest: .
